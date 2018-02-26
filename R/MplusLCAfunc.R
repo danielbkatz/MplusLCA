@@ -1,5 +1,4 @@
-#starts the basic function
-devtools::use_package("dplyr")
+
 
 #' @export
 mplusbasicmix <- function(filename, ext, title_mp, namedata, data_set, variableuse, missflag, classes, starts, refinestarts, categoricallist=NULL){
