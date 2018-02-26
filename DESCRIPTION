@@ -1,0 +1,19 @@
+Package: MplusLCA
+Type: Package
+Title: Batch runs and tabulates Latent Class and Latent Profile Analysis via R
+Version: 0.1.0
+Authors@R: person("Daniel", "Katz", email = "dkatz@ucsb.edu",
+  role = c("aut", "cre"))
+Description: This package is intended for users with minimal R 
+    experience or knowledge. The package is intended to make it easier to 
+    compare latent class and latent profile mixture models
+    using Mplus. Instead of generating each input file in Mplus 
+    individually, the package batch creates
+    and runs these for you based on the dataset input. 
+    Additionally, it autogenerates fit tables.
+    Eventually it will also run EFA. The package requires Mplus. 
+Imports:
+    dplyr
+License: GPL
+Encoding: UTF-8
+LazyData: true
