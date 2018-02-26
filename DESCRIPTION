@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: person("Daniel", "Katz", email = "dkatz@ucsb.edu",
   role = c("aut", "cre"))
 Description: This package is intended for users with minimal R 
-    experience or knowledge. The package is intended to make it easier to 
+    experience. The package makes it easier to 
     compare latent class and latent profile mixture models
     using Mplus. Instead of generating each input file in Mplus 
     individually, the package batch creates
