@@ -13,7 +13,8 @@ Description: This package is intended for users with minimal R
     Additionally, it autogenerates fit tables.
     Eventually it will also run EFA. The package requires Mplus. 
 Imports:
-    dplyr
+    dplyr,
+    magrittr
 License: GPL
 Encoding: UTF-8
 LazyData: true

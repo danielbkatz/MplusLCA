@@ -3,3 +3,4 @@
 export(lcatab)
 export(mplusbasicmix)
 import(dplyr)
+importFrom(magrittr,"%>%")
