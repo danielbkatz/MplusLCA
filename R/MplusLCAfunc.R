@@ -80,11 +80,21 @@ mplusbasicmix <- function(filename, ext, title_mp, namedata, data_set, variableu
 
   #creating batch file
   bat.string <- paste("call mplus.exe ", filename, cl, ext, sep = "")
-  bat.file.name <- paste(filename, ".bat", sep = "")
-  cat(bat.string, file=bat.file.name, sep="\n")
+  #bat.file.name <- paste(filename, ".bat", sep = "")
+  #cat(bat.string, file=bat.file.name, sep="\n")
 
 
   #running batch file
+
+  shell.exec  <- function(bat.string)
+  {
+      # replacement for shell.exe (doesn't exist on MAC)
+      if (exists("shell.exec",where = "package:base"))
+          return(base::shell.exec(x))
+      comm <- paste("open",x)
+      return(system(comm))
+  }
+
   shell.exec(file.path(getwd(), bat.file.name))
   if(cat.null==FALSE){
     returnlist <- list(filename2, cat.null, ncat, cl, ncol(categoricallist))}
