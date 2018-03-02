@@ -86,16 +86,19 @@ mplusbasicmix <- function(filename, ext, title_mp, namedata, data_set, variableu
 
   #running batch file
 
-  shell.exec  <- function(bat.string)
-  {
+
+  #shell.exec(file.path(getwd(), bat.file.name))
       # replacement for shell.exe (doesn't exist on MAC)
-      if (exists("shell.exec",where = "package:base"))
-          return(base::shell.exec(x))
-      comm <- paste("open",x)
-      return(system(comm))
+      if (exists("shell.exec",where = "package:base")){
+          shell.exec(bat.string)}
+
+        else{comm <- paste("open", bat.string)
+      system(comm)
   }
 
-  shell.exec(file.path(getwd(), bat.file.name))
+
+
+
   if(cat.null==FALSE){
     returnlist <- list(filename2, cat.null, ncat, cl, ncol(categoricallist))}
   else{
