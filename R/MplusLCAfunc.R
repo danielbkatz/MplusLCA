@@ -79,8 +79,15 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
         cat(mplusinptoclass[[q]], file = filename1[[q]])}
 
 
-    #creating batch file
-    bat.string <- noquote(paste("call mplus.exe ", filename, cl, ext, sep = ""))
+    #No longer using a batfile, just executing vector commands
+    bat.string <- noquote(paste("call mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
+    bat.stringlin <- noquote(paste("mplus ", file.path(getwd()), "/", filename, cl, ext, sep = ""), type = "sh")
+    print(bat.string)
+    print(bat.stringlin)
+
+    #if (.Platform$OS.type == "unix" && Mplus_command == "Mplus") {
+        #if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"
+        #else Mplus_command <- "mplus" #linux is case sensitive
 
     #bat.file.name <- paste(filename, ".bat", sep = "")
     #cat(bat.string, file=bat.file.name, sep="\n")
@@ -91,11 +98,13 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
 
     #shell.exec(file.path(getwd(), bat.file.name))
     # replacement for shell.exe (doesn't exist on MAC)
-    if (exists("shell.exec", where = "package:base")){
+    if(.Platform$OS.type=="windows"){
         lapply(bat.string, function(x)system2("cmd.exe", input=x))}
-    #lapply(bat.string, shell.exec(file.path(getwd(), filename1)))}
 
-    else{comm <-  lapply(paste("open", bat.string))
+#lapply(bat.string, shell.exec(file.path(getwd(), filename1)))}
+
+    else{
+        comm <-  lapply(paste("mplus", bat.string))
     lapply(comm, function(x){system(x)})
     }
 
