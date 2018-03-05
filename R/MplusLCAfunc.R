@@ -2,7 +2,7 @@
 
 #' @export
 
-mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variableuse, missflag, classes, starts, refinestarts, categoricallist=NULL){
+mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, missflag, classes, starts, refinestarts, categoricallist=NULL){
     #defines variables to loop into
     mplusinptoclass <- list()
     cl<- 1:classes
@@ -13,10 +13,10 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
     write.table(data_set, file=tablefile, row.names=FALSE, col.names = FALSE, sep="\t", quote=FALSE)
 
     #should use a loop eventually instead. Get names of variables in data set
-    varlistnames <- names(data_set)
+    varlistnames <- names(namesare_data)
     varlistpaste <- paste(varlistnames, collapse="\n")
 
-    variableusenames <- names(variableuse)
+    variableusenames <- names(usevar_data)
     variableusepaste <- paste(variableusenames, collapse="\n")
 
     #variable for storing information if there is are categorical variables
@@ -33,7 +33,6 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
 
 
     #this is for creating the syntax for an LPA and LCA .inp. There's probably a smoother way of doing this.
-    fintitle <- paste("Title:", title_mp, ";", sep=" ")
     data <- paste("data: File is", tablefile, ";", sep=" ")
     variablelist <- paste("Variable: Names are", (varlistpaste), ";")
     usev <- paste("Usev=", variableusepaste, ";")
@@ -55,7 +54,7 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
         for(i in 1:classes){
             classes[[i]] <- paste("class=c","(", i, ")",";", sep="")
             savedata[[i]] <- paste("savedata: results are ",i,".dat", sep="" )
-            mplusinptoclass[[i]] <- paste(fintitle, data, variablelist, usev, missflag1, classes[[i]],
+            mplusinptoclass[[i]] <- paste(data, variablelist, usev, missflag1, classes[[i]],
                                           analysis, starts, processors, output, plot, savedata[[i]], sep="\n")}
     }
     #FOR LCA
@@ -71,7 +70,7 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
         for(i in 1:classes){
             classes[[i]] <- paste("class=c","(", i, ")",";", sep="")
             savedata[[i]] <- paste("savedata: results are ", filename, i,".dat", ";", sep="" )
-            mplusinptoclass[[i]] <- paste(fintitle, data, variablelist, usev, categorical, missflag1, classes[[i]], analysis, starts, processors, output, plot, savedata[[i]], sep="\n")}
+            mplusinptoclass[[i]] <- paste(data, variablelist, usev, categorical, missflag1, classes[[i]], analysis, starts, processors, output, plot, savedata[[i]], sep="\n")}
 
     }
     #create each mplus file
@@ -80,14 +79,14 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
 
 
     #No longer using a batfile, just executing vector commands
-    bat.string <- noquote(paste("call mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
-    bat.stringlin <- noquote(paste("mplus ", file.path(getwd()), "/", filename, cl, ext, sep = ""), type = "sh")
-    print(bat.string)
-    print(bat.stringlin)
+    bat.string <- noquote(paste("mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
+    bat.stringlin <- noquote(paste("mplus ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
+    print(shQuote(bat.string), type = "cmd")
+    print(shQuote(bat.stringlin), type="sh")
 
     #if (.Platform$OS.type == "unix" && Mplus_command == "Mplus") {
-        #if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"
-        #else Mplus_command <- "mplus" #linux is case sensitive
+    #if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"
+    #else Mplus_command <- "mplus" #linux is case sensitive
 
     #bat.file.name <- paste(filename, ".bat", sep = "")
     #cat(bat.string, file=bat.file.name, sep="\n")
@@ -101,11 +100,10 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
     if(.Platform$OS.type=="windows"){
         lapply(bat.string, function(x)system2("cmd.exe", input=x))}
 
-#lapply(bat.string, shell.exec(file.path(getwd(), filename1)))}
+    #lapply(bat.string, shell.exec(file.path(getwd(), filename1)))}
 
     else{
-        comm <-  lapply(paste("mplus", bat.string))
-    lapply(comm, function(x){system(x)})
+        lapply(bat.stringlin, function(x){system(x)})
     }
 
 
@@ -122,8 +120,8 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
 
 
 
-#This creates a fit table for your LCA
-#lcatab <- function(lcamod){
+    #This creates a fit table for your LCA
+    #lcatab <- function(lcamod){
 
     #creates all the lists and tables so for loops can be run. I can probably get rid of some of these
     numclass <- length(cl)
@@ -136,7 +134,7 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
     #cat.null <- lcamod[[2]]
 
     #read in the .dat output files
-    fit.list <- lapply(returnlist[[1]], read.table, blank.lines.skip = FALSE, fill = TRUE, sep = "")
+    fit.list <- lapply(returnlist[[1]], read.table, blank.lines.skip = FALSE, fill = TRUE, sep = "", header=FALSE)
 
     #if categorical--lca
     if(cat.null==FALSE){
@@ -154,7 +152,7 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
         rowround <- lapply(rowrem2, function(x)(ceiling(x)*2))
         #rowuse <- rowround$'lcamod[[4]]'
         rowremfin <- as.list(t(rowround[[1]]))
-        #return(rowremfin)}
+
     }
 
 
@@ -170,11 +168,15 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
         rowremfin <- as.list(rowround)
     }
 
-
+    print(rowremfin)
     #this just constructs the table for the first one class model
     for(l in 1:length(fit.list)){
         newfit[[l]] <- fit.list[[l]][-c(1:rowremfin[[l]]),]}
     tablefit1class <- as.data.frame(newfit[[1]])
+
+    print(fit.list)
+    View(fit.list)
+    print(newfit)
 
     #getsrid of uneeded fit criteria
     tablefit1class <- tablefit1class[1, -c(2, 4, 8:10)]
@@ -223,8 +225,11 @@ mplusbasicmix2 <- function(filename, ext, title_mp, namedata, data_set, variable
     #gets rid of an empty row because I'm lazy
     finalmerge <- finalmerge[,-9]
 
-    BICplot <-  plot(finalmerge[,3], type="p")
-    finalret <- list(BICplot, finalmerge)
+    BICplot <-  plot(finalmerge[,3])
+    finalret <- list(fit.list, finalmerge)
+    lapply(newfit, function(x)View(x))
+    View(newfit[[2]])
+    View(newfit[[3]])
     return(finalmerge)
 
 
