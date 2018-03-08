@@ -118,8 +118,9 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     #lapply(bat.string, shell.exec(file.path(getwd(), filename1)))}
 
     else{
-        lapply(bat.stringlin, function(x){system(x)})
+        lapply(filename, function(x){system2(Mplus_command, args=c(shQuote(x)))})
     }
+
 
 
 
