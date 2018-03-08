@@ -1,5 +1,17 @@
+#' mplusbasicmix: A package for batch running and tabulating latent class and latent profile analyses Through Mplus.
+#'
+#' @section Mplusbasicmix2 arguments
+#' @param filename This will be the name of the Mplus .inp files created. Requires quotes. Number of classses in the file will be appended to the end of the filename. For insance "filename1.inp, filename2.inp..."
+#' @param ext for now, just for testing. Just write ".inp"--Quotes required.
+#' @param namedata this is the name of .dat dataset that will be created by the namesare_data set. Quotes required. Example: "dataname"
+#' @param namesare_data This is an R data frame (no quotes) that is the complete dataset used. No quotes. Still must be Mplus compatible in terms of no alpha characters. However, the dataset must have column names.No quotes.
+#' @param usevar_data This is an R data frame (no quotes) that is a subset of the names_are data. These are the variables used in analysis. You can have the namesare_data and Use_var data be the same.
+#' @param missflag This is the missing flag (no quotes, just a number) corresponding to missing in Mplus. What value do you have that connotes missing.
+#' @param classes Number of classes you want to run (no quotes, just a number). If you enter 6, the function will create and run 1:6 classes and tabulate.
+#' @param starts Number of starts (no quotes, just a number)
+#' @param refinestarts Number of final starts you wish to run (no quotes)
+#' @param categoricalist (no quotes). This is the "categorical are" option in mplus. Subset of data that include categorical variables. Must include for dichotomous or other categorical. If LPA do not put anything here.
 #' @import dplyr
-
 #' @export
 
 mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, missflag, classes, starts, refinestarts, categoricallist=NULL){
@@ -10,7 +22,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
     #creating the file for saving/exporting the .dat file Mplus will use for analysis
     tablefile <- paste(namedata, ".dat", sep="")
-    write.table(data_set, file=tablefile, row.names=FALSE, col.names = FALSE, sep="\t", quote=FALSE)
+    write.table(namesare_data, file=tablefile, row.names=FALSE, col.names = FALSE, sep="\t", quote=FALSE)
 
     #should use a loop eventually instead. Get names of variables in data set
     varlistnames <- names(namesare_data)
@@ -47,7 +59,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
     #FOR LPA
     if(cat.null==TRUE){
-        varlpa <- variableuse %>% mutate_if(is.numeric, funs(ifelse(. == missflag, NA, .))) %>%
+        varlpa <- usevar_data %>% mutate_if(is.numeric, funs(ifelse(. == missflag, NA, .))) %>%
             na.omit()
         listcount <- apply(varlpa, 2, function(x)length(unique(x)))
         #iterates through class numbers with different output
@@ -79,14 +91,16 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
 
     #No longer using a batfile, just executing vector commands
+
+
+    if (.Platform$OS.type == "unix" && Mplus_command == "Mplus") {
+        if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"}
+    else {Mplus_command <- "mplus"} #linux is case sensitive
+
     bat.string <- noquote(paste("mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
-    bat.stringlin <- noquote(paste("mplus ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
+    bat.stringlin <- noquote(paste(Mplus_command, file.path(getwd()), "/", filename, cl, ext, sep = ""))
     print(shQuote(bat.string), type = "cmd")
     print(shQuote(bat.stringlin), type="sh")
-
-    #if (.Platform$OS.type == "unix" && Mplus_command == "Mplus") {
-    #if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"
-    #else Mplus_command <- "mplus" #linux is case sensitive
 
     #bat.file.name <- paste(filename, ".bat", sep = "")
     #cat(bat.string, file=bat.file.name, sep="\n")
@@ -112,7 +126,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     if(cat.null==FALSE){
         returnlist <- list(filename2, cat.null, ncat, cl, ncol(categoricallist))}
     else{
-        returnlist <- list(filename2, cat.null, cl, ncol(variableuse), listcount)}
+        returnlist <- list(filename2, cat.null, cl, ncol(usevar_data), listcount)}
 
 
 
@@ -228,8 +242,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     BICplot <-  plot(finalmerge[,3])
     finalret <- list(fit.list, finalmerge)
     lapply(newfit, function(x)View(x))
-    View(newfit[[2]])
-    View(newfit[[3]])
+
     return(finalmerge)
 
 
