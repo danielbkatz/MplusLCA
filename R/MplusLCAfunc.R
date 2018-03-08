@@ -98,8 +98,8 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
         if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"}
     else {Mplus_command <- "mplus"} #linux is case sensitive
 
-    bat.string <- noquote(paste("mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
-    bat.stringlin <- noquote(paste(Mplus_command, " ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
+    bat.string <- noquote(paste("mplus.exe ", file.path(getwd()), filename, cl, ext, sep = ""))
+    bat.stringlin <- noquote(paste(Mplus_command, " ", file.path(getwd()), filename, cl, ext, sep = ""))
     print(shQuote(bat.string), type = "cmd")
     print(shQuote(bat.stringlin), type="sh")
 
