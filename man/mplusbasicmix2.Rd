@@ -31,7 +31,3 @@ mplusbasicmix2(filename, ext, namedata, namesare_data, usevar_data, missflag,
 \description{
 mplusbasicmix: A package for batch running and tabulating latent class and latent profile analyses Through Mplus.
 }
-\section{Mplusbasicmix2 arguments}{
-NA
-}
-

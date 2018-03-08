@@ -1,6 +1,5 @@
 #' mplusbasicmix: A package for batch running and tabulating latent class and latent profile analyses Through Mplus.
 #'
-#' @section Mplusbasicmix2 arguments
 #' @param filename This will be the name of the Mplus .inp files created. Requires quotes. Number of classses in the file will be appended to the end of the filename. For insance "filename1.inp, filename2.inp..."
 #' @param ext for now, just for testing. Just write ".inp"--Quotes required.
 #' @param namedata this is the name of .dat dataset that will be created by the namesare_data set. Quotes required. Example: "dataname"
@@ -12,11 +11,8 @@
 #' @param refinestarts Number of final starts you wish to run (no quotes)
 #' @param categoricalist (no quotes). This is the "categorical are" option in mplus. Subset of data that include categorical variables. Must include for dichotomous or other categorical. If LPA do not put anything here.
 #' @import dplyr
-<<<<<<< HEAD
 #' @importFrom magrittr %>%
 
-=======
->>>>>>> 85d6af8f940bdb9a3c7e22564591b6dec6ba3501
 #' @export
 
 mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, missflag, classes, starts, refinestarts, categoricallist=NULL){
@@ -103,7 +99,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     else {Mplus_command <- "mplus"} #linux is case sensitive
 
     bat.string <- noquote(paste("mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
-    bat.stringlin <- noquote(paste(Mplus_command, file.path(getwd()), "/", filename, cl, ext, sep = ""))
+    bat.stringlin <- noquote(paste(Mplus_command, " ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
     print(shQuote(bat.string), type = "cmd")
     print(shQuote(bat.stringlin), type="sh")
 
