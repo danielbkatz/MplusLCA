@@ -184,8 +184,8 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
   tablefit1class <- as.data.frame(newfit[[1]])
   
   print(fit.list)
-  View(fit.list)
-  print(newfit)
+  #View(fit.list)
+  #print(newfit)
   
   #getsrid of uneeded fit criteria
   tablefit1class <- tablefit1class[1, -c(2, 4, 8:10)]
@@ -237,7 +237,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
   BICplot <-  plot(finalmerge[,3])
   finalret <- list(fit.list, finalmerge)
   lapply(newfit, function(x)View(x))
-  
+  View(finalmerge)
   return(finalmerge)
   
   
