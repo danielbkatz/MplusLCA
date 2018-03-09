@@ -94,7 +94,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     #No longer using a batfile, just executing vector commands
 
 
-    if (.Platform$OS.type == "unix" && Mplus_command == "Mplus") {
+    if (.Platform$OS.type == "unix") {
         if (Sys.info()["sysname"] == "Darwin") Mplus_command <- "/Applications/Mplus/mplus"}
     else {Mplus_command <- "mplus"} #linux is case sensitive
 
