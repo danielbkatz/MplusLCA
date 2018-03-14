@@ -1,11 +1,12 @@
-    #' mplusbasicmix: A package for batch running and tabulating latent class and latent profile analyses Through Mplus.
-    #'
-    #' @param filename This will be the name of the Mplus .inp files created. Requires quotes. Number of classses in the file will be appended to the end of the filename. For insance "filename1.inp, filename2.inp..."
+#' mplusbasicmix: A package for batch running and tabulating latent class and latent profile analyses Through Mplus.
+#'
+#' @param filename This will be the name of the Mplus .inp files created. Requires quotes. Number of classses in the file will be appended to the end of the filename. For insance "filename1.inp, filename2.inp..."
 #' @param ext for now, just for testing. Just write ".inp"--Quotes required.
 #' @param namedata this is the name of .dat dataset that will be created by the namesare_data set. Quotes required. Example: "dataname"
 #' @param namesare_data This is an R data frame (no quotes) that is the complete dataset used. No quotes. Still must be Mplus compatible in terms of no alpha characters. However, the dataset must have column names.No quotes.
 #' @param usevar_data This is an R data frame (no quotes) that is a subset of the names_are data. These are the variables used in analysis. You can have the namesare_data and Use_var data be the same.
-#' @param missflag This is the missing flag (no quotes, just a number) corresponding to missing in Mplus. What value do you have that connotes missing.#' @param classes Number of classes you want to run (no quotes, just a number). If you enter 6, the function will create and run 1:6 classes and tabulate.
+#' @param missflag This is the missing flag (no quotes, just a number) corresponding to missing in Mplus. What value do you have that connotes missing.
+#' @param classes Number of classes you want to run (no quotes, just a number). If you enter 6, the function will create and run 1:6 classes and tabulate.
 #' @param starts Number of starts (no quotes, just a number)
 #' @param refinestarts Number of final starts you wish to run (no quotes)
 #' @param categoricalist (no quotes). This is the "categorical are" option in mplus. Subset of data that include categorical variables. Must include for dichotomous or other categorical. If LPA do not put anything here.
