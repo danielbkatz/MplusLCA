@@ -25,15 +25,9 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
 
 
-    #if(.Platform$OS.type=="windows"){
     #creating the file for saving/exporting the .dat file Mplus will use for analysis
     tablefile <- paste(namedata, ".dat", sep="")
     write.table(namesare_data, file=tablefile, row.names=FALSE, col.names = FALSE, sep="\t", quote=FALSE)
-
-    #else{tablefile <- shQuote(paste(workdir, "/", namedata, ".dat", "/", sep=""), type = "sh")
-    #return(tablefile)
-    #write.table(namesare_data, file=tablefile, row.names=FALSE, col.names = FALSE, sep="\t", quote=FALSE)
-    #}}
 
 
     #should use a loop eventually instead. Get names of variables in data set
@@ -43,7 +37,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     variableusenames <- names(usevar_data)
     variableusepaste <- paste(variableusenames, collapse="\n")
 
-    #variable for storing information if there is are categorical variables
+    #need to get this logical for building tables later and running LPA or LCA
     cat.null=is.null(categoricallist)
 
     #storage of categorical variables
@@ -51,13 +45,13 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     cat.list.paste <- paste(cat.list, collapse="\n")
 
 
-
+#gets filenames to create for input files.
     filename1<- paste(filename, cl, ext, sep="")
     filename2 <- paste(filename,cl, ".dat", sep = "")
 
 
 
-    #this is for creating the syntax for an LPA and LCA .inp. There's probably a smoother way of doing this.
+#this is for creating the syntax for an LPA and LCA .inp. There's probably a smoother way of doing this.
     data <- paste("data: File is", tablefile, ";", sep=" ")
     variablelist <- paste("Variable: Names are", (varlistpaste), ";")
     usev <- paste("Usev=", variableusepaste, ";")
@@ -105,13 +99,14 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
     #No longer using a batfile, just executing vector commands
 
-
+#thanks to mplus auto for this code here. Creates the mplus command for unix/mac
     if (.Platform$OS.type == "unix"){
         if (Sys.info()["sysname"] == "Darwin")Mplus_command <- "/Applications/Mplus/mplus"
         else Mplus_command <- "mplus" #linux is case sensitive
     }
 
 
+#for windows
     bat.string <- noquote(paste("mplus.exe ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
     #bat.stringlin <- noquote(paste(Mplus_command, " ", file.path(getwd()), "/", filename, cl, ext, sep = ""))
     print(shQuote(bat.string), type = "cmd")
@@ -121,16 +116,16 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     #cat(bat.string, file=bat.file.name, sep="\n")
 
 
-    #running batch file
-
 
     #shell.exec(file.path(getwd(), bat.file.name))
     # replacement for shell.exe (doesn't exist on MAC)
+
+#runs for windows
     if(.Platform$OS.type=="windows"){
         lapply(bat.string, function(x)system2("cmd.exe", input=x))}
 
     #lapply(bat.string, shell.exec(file.path(getwd(), filename1)))}
-
+#runs for mac/unix
     else{
         lapply(filename1, function(x){system2(Mplus_command, args=c(shQuote(x)))})
     }
@@ -138,7 +133,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
 
 
-
+#values to store for building tables. Makes use of this information in building the table. Can get rid of some of this now
     if(cat.null==FALSE){
         returnlist <- list(filename2, cat.null, ncat, cl, ncol(categoricallist))}
     else{
@@ -147,9 +142,11 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
 
     #This creates a fit table for your LCA
-    #lcatab <- function(lcamod){
 
-    #creates all the lists and tables so for loops can be run. I can probably get rid of some of these
+#From when this was a seperate function:
+#lcatab <- function(lcamod){
+
+#creates all the lists and tables so for loops can be run. I can probably get rid of some of these
     numclass <- length(cl)
     fitlist <- list()
     newfit <- list()
@@ -161,10 +158,10 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     fitmulti <- data.frame()
     #cat.null <- lcamod[[2]]
 
-    #read in the .dat output files
+    #read in the .dat output files. Loops through to read in multiple files from free format
     fit.list <- lapply(returnlist[[1]], read.table, blank.lines.skip = FALSE, fill = TRUE, sep = "", header=FALSE)
 
-    #if categorical--lca
+    #if categorical--lca. Calculates number of rows that contain parameters and standard errors to find log likelihood
     if(cat.null==FALSE ){
         ncatdat <- as.data.frame(returnlist[[3]])
         claslist <- as.data.frame(returnlist[[4]])
@@ -183,6 +180,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
     }
 
+#this calculates rows for LPA, but faulty right now.
 
     else{
         claslist <- as.data.frame(returnlist[[3]])
@@ -196,6 +194,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
         rowremfin <- as.list(rowround)
     }
 
+#this is for testing
     print(rowremfin)
 
 
@@ -203,12 +202,13 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     mistest <- any(usevar_data==missflag)
 
 
-    #this just constructs the table for the first one class model
+    #this just constructs the table for the first one class model. Doesn't need to differ based on missing
 
     for(l in 1:length(fit.list)){
         newfit[[l]] <- fit.list[[l]][-c(1:rowremfin[[l]]),]}
     tablefit1class <- as.data.frame(newfit[[1]])
 
+#for testings
     print(fit.list)
     #View(fit.list)
     #print(newfit)
@@ -216,21 +216,19 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
 
     #getsrid of uneeded fit criteria
-    tablefit1class <- tablefit1class[1, -c(2, 4, 8:10)]
+   tablefit1class <- tablefit1class[1, -c(2, 4, 8:10)]
 
-
-
-    #makes the table conformable
+    #makes the table conformable with the extra fit criteria
     tablefit1class[6:11] <- NA
 
 
 
-    #labels the rows
+    #labels the columns
     names(tablefit1class) <- c("H0_LogLikelihood", "Num_Free_Par", "BIC", "SaBIC", "Entropy", "Condition Number", "LMR adjust p-value", "BootStrap P-value", "LRTS", "BF", "cmP_K" )
 
 
 
-    #this constructs the list for the classes greater than 1
+    #this constructs the list for the classes greater than 1 and no missing
     if(mistest == FALSE){
         for(m in 2:length(newfit))
         {
@@ -247,11 +245,12 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
 
         #puts a list of the tables together for classes greater than 1 and labels them
         listslca_plus <- list(tablefit2class, tablefit2class2, tablefit2class3)
-        combiningmulti <- Reduce("cbind", listslca_plus)}
+        combiningmulti <- Reduce("cbind", listslca_plus)
+        }
 
+#Creates table when missing values present (with MCAR)
     else{
-        for(m in 2:length(newfit))
-        {
+        for(m in 2:length(newfit)){
             tablefit2class[[m]] <-newfit[[m]][1, -c(2,4,8:10)]
             tablefit2class2[[m]] <- newfit[[m]][2, -c(1:9)]
             tablefit2class3[[m]] <- newfit[[m]][3, -c(1:7, 9:10)]}
@@ -264,15 +263,15 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
         tablefit2class4 <- Reduce("rbind", tablefit2class4)
 
 
-
-
         #puts a list of the tables together for classes greater than 1 and labels them
-        listslca_plus <- list(tablefit2class, tablefit2class2, tablefit2class3, tablefit2class4)}
+        listslca_plus <- list(tablefit2class, tablefit2class2, tablefit2class3, tablefit2class4)
+        }
+
+
+# puts the columns together from the multiple fit criteria
     combiningmulti <- Reduce("cbind", listslca_plus)
 
-
-
-
+#adds the extra columns
     combiningmulti[9:11] <- NA
 
     #labels the columns
@@ -297,6 +296,7 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     #gets rid of an empty row because I'm lazy
     finalmerge <- finalmerge[,-9]
 
+
     #BICplot <-  plot(finalmerge[,3])
     finalret <- list(fit.list, finalmerge)
     lapply(newfit, function(x)View(x))
@@ -304,7 +304,6 @@ mplusbasicmix2 <- function(filename, ext, namedata, namesare_data, usevar_data, 
     return(finalmerge)
 
 
-
-    #this isn't working
-    write.csv(finalmerge, file=print(namefile))
+#this isn't working
+write.csv(finalmerge, file=paste(filename, ".csv", sep=""))
 }
